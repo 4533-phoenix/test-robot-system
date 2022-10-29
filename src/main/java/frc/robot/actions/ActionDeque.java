@@ -27,7 +27,7 @@ public class ActionDeque {
             ActionThread t = (ActionThread) this.actions.get(i);
             ReentrantLock lock = t.getLock();
 
-            if (!t.isRunning()) {
+            if (!t.isAlive()) {
                 t.start();
             }
 
@@ -48,6 +48,13 @@ public class ActionDeque {
                     }
                 }
             }
+
+            // Wait 20ms so that the thread started this loop
+            // has time to start before the thread next loop starts
+            try {
+                Thread.sleep(20);
+            }
+            catch (InterruptedException ie) {}
         }
     }
 

@@ -3,52 +3,68 @@ package frc.robot.actions;
 import java.lang.Thread;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import frc.robot.actions.Listener;
 
-public class ActionThread extends Thread {
-    private boolean isRunning = false;
-
+public class ActionThread extends Thread implements Listener {
     private boolean willLoop;
 
     private boolean willCancel;
 
-    private ReentrantLock lock;
+    private boolean isEvent;
+    
+    private boolean willRun = false;
 
-    public ActionThread(Runnable target, boolean willLoop, boolean willCancel, ReentrantLock lock) {
+    protected ReentrantLock lock;
+
+    public ActionThread(Runnable target, boolean willLoop, boolean willCancel, boolean isEvent, ReentrantLock lock) {
         super(target);
 
         this.willLoop = willLoop;
 
         this.willCancel = willCancel;
 
+        this.isEvent = isEvent;
+
         this.lock = lock;
     }
 
     @Override
-    public void run() {
-        this.isRunning = true;
+    public void start() {
+        if (isEvent) {
+            if (willRun) {
+                super.start();
+            }
+        }
+        else {
+            super.start();
+        }
+    }
 
+    @Override
+    public void run() {
         this.lock.lock();
 
         if (this.willLoop) {
-            while (this.isRunning) {
+            while (this.willLoop) {
                 super.run();
             }
+
+            this.willLoop = true;
         }
         else {
             super.run();
         }
 
         this.lock.unlock();
-
-        this.isRunning = false;
     }
 
     public void end() {
-        this.isRunning = false;
+        this.willLoop = false;
     }
 
-    public boolean isRunning() {
-        return this.isRunning;
+    @Override
+    public void respond() {
+        this.willRun = true;
     }
 
     public boolean willLoop() {
