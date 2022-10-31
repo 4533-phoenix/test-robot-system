@@ -15,6 +15,8 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.math.geometry.*;
 
@@ -37,8 +39,6 @@ public class SwerveSystem extends Subsystem {
 
     private static double fieldRelativeAngleOffset = 0.0;
 
-    private ChassisSpeeds swerveChassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
-
     private SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
         new Translation2d(-Constants.swerveModuleDistanceFromCenter, Constants.swerveModuleDistanceFromCenter),
         new Translation2d(Constants.swerveModuleDistanceFromCenter, Constants.swerveModuleDistanceFromCenter),
@@ -47,6 +47,8 @@ public class SwerveSystem extends Subsystem {
     );
 
     private SwerveDrivePoseEstimator swervePoseEstimator;
+
+    private Pose2d swervePose;
 
     // TODO: Calculate these
     public static final double SWERVE_CHASSIS_X_KP = 1.0;
@@ -144,14 +146,26 @@ public class SwerveSystem extends Subsystem {
         this.swerveModules[Constants.frontRightSwerveModuleIndex] = frontRightSwerveModule;
         this.swerveModules[Constants.backLeftSwerveModuleIndex] = backLeftSwerveModule;
         this.swerveModules[Constants.backRightSwerveModuleIndex] = backRightSwerveModule;
+
+        this.swervePose = new Pose2d();
+
+        // TODO: Have initial position be changeable
+        this.swervePoseEstimator = new SwerveDrivePoseEstimator(
+            Rotation2d.fromDegrees(-navX.getAngle()), 
+            this.swervePose, 
+            this.swerveKinematics, 
+            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01), 
+            new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.01), 
+            new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01)
+        );
     }
 
     public void drive(SwerveModuleState[] swerveModuleStates, boolean snap) {
         if (snap) {
-            this.swerveModules[Constants.frontLeftSwerveModuleIndex].set(0.0, (PI / 4) - fieldRelativeAngleOffset);
-            this.swerveModules[Constants.frontRightSwerveModuleIndex].set(0.0, (3 * PI / 4) - fieldRelativeAngleOffset);
-            this.swerveModules[Constants.backLeftSwerveModuleIndex].set(0.0, (7 * PI / 4) - fieldRelativeAngleOffset);
-            this.swerveModules[Constants.backRightSwerveModuleIndex].set(0.0, (5 * PI / 4) - fieldRelativeAngleOffset);
+            this.swerveModules[Constants.frontLeftSwerveModuleIndex].set(0.0, (PI / 4) + fieldRelativeAngleOffset);
+            this.swerveModules[Constants.frontRightSwerveModuleIndex].set(0.0, (3 * PI / 4) + fieldRelativeAngleOffset);
+            this.swerveModules[Constants.backLeftSwerveModuleIndex].set(0.0, (-PI / 4) + fieldRelativeAngleOffset);
+            this.swerveModules[Constants.backRightSwerveModuleIndex].set(0.0, (-3 * PI / 4) + fieldRelativeAngleOffset);
         }
         else {
             SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, MAX_VELOCITY);
@@ -166,7 +180,7 @@ public class SwerveSystem extends Subsystem {
                 swerveModule.set(
                     swerveModuleDriveMotorController.calculate(swerveModule.getDriveVelocity(), speed)
                     + swerveModuleDriveMotorFeedForward.calculate(speed), 
-                    angle - fieldRelativeAngleOffset
+                    angle + fieldRelativeAngleOffset
                 );
             }
         }
@@ -187,6 +201,23 @@ public class SwerveSystem extends Subsystem {
 
     // TODO: Create an action thread that runs this
     public void periodic() {
-        fieldRelativeAngleOffset = (navX.getYaw() + 180) * (PI / 180);
+        fieldRelativeAngleOffset = toRadians(-navX.getYaw());
+        
+        SwerveModuleState[] swerveModuleStates = new SwerveModuleState[4];
+
+        for (int i = 0; i < 4; i++) {
+            swerveModuleStates[i] = new SwerveModuleState(
+                this.swerveModules[i].getDriveVelocity(), 
+                new Rotation2d(this.swerveModules[i].getSteerAngle())
+            );
+        }
+
+        this.swervePose = this.swervePoseEstimator.update(
+            Rotation2d.fromDegrees(-navX.getAngle()),
+            swerveModuleStates[0],
+            swerveModuleStates[1],
+            swerveModuleStates[2],
+            swerveModuleStates[3]
+        );
     }
 }
