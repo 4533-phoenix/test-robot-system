@@ -32,18 +32,25 @@ public class ActionDeque {
             }
 
             if (t.willCancel()) {
-                this.actions.remove(i);
+                if (!t.willLoop()) {
+                    this.actions.remove(i);
 
-                i--;
+                    i--;
+                }
             }
 
-            if (lock != null) {
-                if (lock.isLocked()) {
-                    for (Thread thread : this.actions) {
-                        ActionThread ct = (ActionThread) thread;
+            if (lock.isLocked()) {
+                for (int j = 0; j < this.actions.size(); j++) {
+                    ActionThread ct = (ActionThread) this.actions.get(j);
 
-                        if (ct.getLock().equals(lock) && ct.willLoop()) {
-                            ct.end();
+                    if (ct.getLock().equals(lock) && ct.willLoop()) {
+                        ct.end();
+
+                        if (ct.willCancel()) {
+                            this.actions.remove(j);
+
+                            j--;
+                            i--;
                         }
                     }
                 }

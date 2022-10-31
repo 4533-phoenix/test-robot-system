@@ -4,7 +4,6 @@ import frc.robot.actions.FunctionThread;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.Date;
 
 import static org.junit.Assert.*;
 import org.junit.*;
