@@ -40,4 +40,20 @@ public final class Constants {
 
     // Swerve module distance from center of robot (in both x and y direction)
     public static final double swerveModuleDistanceFromCenter = 0.28575; // meters
+
+    // Drive controller ports
+    public static final int driveControllerOnePort = 0;
+
+    // Drive controller axes
+    public static final int leftStickXAxis = 0;
+    public static final int leftStickYAxis = 1;
+
+    public static final int rightStickXAxis = 4;
+    public static final int rightStickYAxis = 5;
+
+    public static final int leftTriggerAxis = 2;
+    public static final int rightTriggerAxis = 3;
+
+    // Drive controller offset
+    public static final double maxStickOffset = 0.05;
 }

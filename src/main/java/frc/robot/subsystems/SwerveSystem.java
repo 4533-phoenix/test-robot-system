@@ -199,6 +199,18 @@ public class SwerveSystem extends Subsystem {
         return swerveModuleStates;
     }
 
+    public SwerveDriveKinematics getSwerveKinematics() {
+        return this.swerveKinematics;
+    }
+
+    public HolonomicDriveController getSwerveChassisController() {
+        return this.swerveChassisController;
+    }
+    
+    public Pose2d getSwervePose() {
+        return this.swervePose;
+    }
+
     // TODO: Create an action thread that runs this
     public void periodic() {
         fieldRelativeAngleOffset = toRadians(-navX.getYaw());

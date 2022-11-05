@@ -29,6 +29,8 @@ public class ActionDeque {
 
             if (!t.isAlive()) {
                 t.start();
+
+                while (!lock.isLocked()) {}
             }
 
             if (t.willCancel()) {
@@ -39,29 +41,20 @@ public class ActionDeque {
                 }
             }
 
-            if (lock.isLocked()) {
-                for (int j = 0; j < this.actions.size(); j++) {
-                    ActionThread ct = (ActionThread) this.actions.get(j);
+            for (int j = 0; j < this.actions.size(); j++) {
+                ActionThread ct = (ActionThread) this.actions.get(j);
 
-                    if (ct.getLock().equals(lock) && ct.willLoop()) {
-                        ct.end();
+                if (!ct.equals(t) && ct.getLock().equals(lock) && ct.willLoop()) {
+                    ct.end();
 
-                        if (ct.willCancel()) {
-                            this.actions.remove(j);
+                    if (ct.willCancel()) {
+                        this.actions.remove(j);
 
-                            j--;
-                            i--;
-                        }
+                        j--;
+                        i--;
                     }
                 }
             }
-
-            // Wait 20ms so that the thread started this loop
-            // has time to start before the thread next loop starts
-            try {
-                Thread.sleep(20);
-            }
-            catch (InterruptedException ie) {}
         }
     }
 

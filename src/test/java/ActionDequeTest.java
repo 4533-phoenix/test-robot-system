@@ -120,4 +120,38 @@ public class ActionDequeTest {
         assertEquals(c, 30, 0);
         assertEquals(d, -15, 0);
     }
+
+    @Test
+    public void runActionDequeWithActionThreadsWithLocksThatWillLoop() {
+        ActionDeque deque = ActionDeque.getInstance();
+
+        Runnable aRunMethod = new Runnable() {
+            @Override
+            public void run() {
+                a += 5;
+            }
+        };
+
+        Runnable bRunMethod = new Runnable() {
+            @Override
+            public void run() {
+                b += 10;
+            }
+        };
+
+        ReentrantLock abLock = new ReentrantLock(true);
+
+        ActionThread aThread = new ActionThread(aRunMethod, true, true, false, abLock);
+        ActionThread bThread = new ActionThread(bRunMethod, false, true, false, abLock);
+
+        deque.pushBack(aThread);
+        deque.pushBack(bThread);
+
+        deque.run();
+
+        while (aThread.isAlive() || bThread.isAlive()) {}
+
+        assertTrue(a >= 5);
+        assertEquals(b, 10, 0);
+    }
 }
