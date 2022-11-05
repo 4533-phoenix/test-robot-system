@@ -1,10 +1,8 @@
 package frc.robot.subsystems;
 
 import com.swervedrivespecialties.swervelib.SwerveModule;
-import com.swervedrivespecialties.swervelib.Mk4ModuleConfiguration;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper.GearRatio;
-import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -19,10 +17,13 @@ import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.kauailabs.navx.frc.AHRS;
 
 import frc.robot.Constants;
+import frc.robot.actions.ActionDeque;
+import frc.robot.actions.SwerveActions;
 
 import static java.lang.Math.*;
 
@@ -162,10 +163,10 @@ public class SwerveSystem extends Subsystem {
 
     public void drive(SwerveModuleState[] swerveModuleStates, boolean snap) {
         if (snap) {
-            this.swerveModules[Constants.frontLeftSwerveModuleIndex].set(0.0, (PI / 4) + fieldRelativeAngleOffset);
-            this.swerveModules[Constants.frontRightSwerveModuleIndex].set(0.0, (3 * PI / 4) + fieldRelativeAngleOffset);
-            this.swerveModules[Constants.backLeftSwerveModuleIndex].set(0.0, (-PI / 4) + fieldRelativeAngleOffset);
-            this.swerveModules[Constants.backRightSwerveModuleIndex].set(0.0, (-3 * PI / 4) + fieldRelativeAngleOffset);
+            this.swerveModules[Constants.frontLeftSwerveModuleIndex].set(0.0, (PI / 4));
+            this.swerveModules[Constants.frontRightSwerveModuleIndex].set(0.0, (3 * PI / 4));
+            this.swerveModules[Constants.backLeftSwerveModuleIndex].set(0.0, (-PI / 4));
+            this.swerveModules[Constants.backRightSwerveModuleIndex].set(0.0, (-3 * PI / 4));
         }
         else {
             SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, MAX_VELOCITY);
@@ -211,7 +212,35 @@ public class SwerveSystem extends Subsystem {
         return this.swervePose;
     }
 
+    @Override
+    public void log() {
+        SmartDashboard.putNumber("Swerve Pose X", this.swervePose.getX());
+        SmartDashboard.putNumber("Swerve Pose Y", this.swervePose.getY());
+        SmartDashboard.putNumber("Swerve Pose Angle", this.swervePose.getRotation().getDegrees());
+
+        SwerveModuleState[] swerveModuleStates = new SwerveModuleState[4];
+
+        for (int i = 0; i < 4; i++) {
+            swerveModuleStates[i] = new SwerveModuleState(
+                this.swerveModules[i].getDriveVelocity(), 
+                new Rotation2d(this.swerveModules[i].getSteerAngle())
+            );
+        }
+
+        ChassisSpeeds chassisSpeeds = this.swerveKinematics.toChassisSpeeds(
+            swerveModuleStates[0],
+            swerveModuleStates[1],
+            swerveModuleStates[2],
+            swerveModuleStates[3]
+        );
+
+        SmartDashboard.putNumber("Swerve X Velocity", -chassisSpeeds.vyMetersPerSecond);
+        SmartDashboard.putNumber("Swerve Y Velocity", chassisSpeeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("Swerve Rotational Velocity", -chassisSpeeds.omegaRadiansPerSecond);
+    }
+
     // TODO: Create an action thread that runs this
+    @Override
     public void periodic() {
         fieldRelativeAngleOffset = toRadians(-navX.getYaw());
         
@@ -230,6 +259,17 @@ public class SwerveSystem extends Subsystem {
             swerveModuleStates[1],
             swerveModuleStates[2],
             swerveModuleStates[3]
+        );
+    }
+
+    @Override
+    public void queryInitialActions() {
+        ActionDeque actionDeque = ActionDeque.getInstance();
+
+        actionDeque.pushBack(
+            this.getPeriodicThread(),
+            this.getLoggingThread(),
+            SwerveActions.defaultSwerveDrive()
         );
     }
 }

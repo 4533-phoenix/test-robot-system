@@ -106,7 +106,7 @@ public final class SwerveActions {
                 ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
                     leftStickY * SwerveSystem.MAX_VELOCITY, 
                     -leftStickX * SwerveSystem.MAX_VELOCITY,
-                    rightStickX * SwerveSystem.MAX_ROTATIONAL_VELOCITY
+                    -rightStickX * SwerveSystem.MAX_ROTATIONAL_VELOCITY
                 );
 
                 SwerveModuleState[] swerveModuleStates = Robot.swerveSystem.getSwerveKinematics().toSwerveModuleStates(chassisSpeeds);

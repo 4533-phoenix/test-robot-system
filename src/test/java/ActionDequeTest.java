@@ -54,10 +54,12 @@ public class ActionDequeTest {
         ActionThread cThread = new ActionThread(cRunnable, false, true, false, cdLock);
         ActionThread dThread = new ActionThread(dRunnable, false, true, false, cdLock);
 
-        deque.pushBack(aThread);
-        deque.pushBack(bThread);
-        deque.pushBack(dThread);
-        deque.pushBack(cThread);
+        deque.pushBack(
+            aThread,
+            bThread,
+            dThread,
+            cThread
+        );
 
         deque.run();
 
@@ -108,8 +110,10 @@ public class ActionDequeTest {
         FunctionThread aThread = new FunctionThread(() -> {}, aRunMethod, aConditionalMethod, () -> {}, true, false, abLock);
         FunctionThread bThread = new FunctionThread(() -> {}, bRunMethod, bConditionalMethod, () -> {}, true, false, abLock);
 
-        deque.pushBack(aThread);
-        deque.pushBack(bThread);
+        deque.pushBack(
+            aThread,
+            bThread
+        );
 
         deque.run();
 
@@ -144,8 +148,10 @@ public class ActionDequeTest {
         ActionThread aThread = new ActionThread(aRunMethod, true, true, false, abLock);
         ActionThread bThread = new ActionThread(bRunMethod, false, true, false, abLock);
 
-        deque.pushBack(aThread);
-        deque.pushBack(bThread);
+        deque.pushBack(
+            aThread,
+            bThread
+        );
 
         deque.run();
 

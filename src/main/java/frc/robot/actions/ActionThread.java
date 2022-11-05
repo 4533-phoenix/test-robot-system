@@ -1,9 +1,7 @@
 package frc.robot.actions;
 
 import java.lang.Thread;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import frc.robot.actions.Listener;
 
 public class ActionThread extends Thread implements Listener {
     private boolean willLoop;
@@ -63,8 +61,13 @@ public class ActionThread extends Thread implements Listener {
     }
 
     @Override
-    public void respond() {
+    public void respondTrue() {
         this.willRun = true;
+    }
+
+    @Override
+    public void respondFalse() {
+        this.willRun = false;
     }
 
     public boolean willLoop() {

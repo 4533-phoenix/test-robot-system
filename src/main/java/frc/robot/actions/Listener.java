@@ -1,5 +1,7 @@
 package frc.robot.actions;
 
 public interface Listener {
-    public void respond();
+    public void respondTrue();
+    
+    public void respondFalse();
 }

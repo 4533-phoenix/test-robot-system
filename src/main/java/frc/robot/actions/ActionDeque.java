@@ -1,17 +1,15 @@
 package frc.robot.actions;
 
 import java.util.ArrayList;
-import java.lang.Thread;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ActionDeque {
     private static ActionDeque deque;
 
-    private ArrayList<Thread> actions;
+    private ArrayList<ActionThread> actions;
 
     private ActionDeque() {
-        this.actions = new ArrayList<Thread>();
+        this.actions = new ArrayList<ActionThread>();
     }
 
     public static ActionDeque getInstance() {
@@ -58,23 +56,23 @@ public class ActionDeque {
         }
     }
 
-    public void pushFront(Thread action) {
-        if (action instanceof ActionThread) {
+    public void pushFront(ActionThread... actions) {
+        for (ActionThread action : actions) {
             this.actions.add(0, action);
         }
     }
 
-    public void pushBack(Thread action) {
-        if (action instanceof ActionThread) {
+    public void pushBack(ActionThread... actions) {
+        for (ActionThread action : actions) {
             this.actions.add(action);
         }
     }
 
-    public Thread popFront() {
+    public ActionThread popFront() {
         return this.actions.remove(0);
     } 
 
-    public Thread popBack() {
+    public ActionThread popBack() {
         return this.actions.remove(this.actions.size() - 1);
     }
 
