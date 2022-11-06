@@ -264,11 +264,11 @@ public class SwerveSystem extends Subsystem {
 
     @Override
     public void queryInitialActions() {
+        super.queryInitialActions();
+
         ActionDeque actionDeque = ActionDeque.getInstance();
 
         actionDeque.pushBack(
-            this.getPeriodicThread(),
-            this.getLoggingThread(),
             SwerveActions.defaultSwerveDrive()
         );
     }

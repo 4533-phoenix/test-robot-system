@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+import frc.robot.actions.ActionDeque;
 import frc.robot.actions.ActionThread;
 import frc.robot.logging.Logger;
 
@@ -40,5 +41,12 @@ public class Subsystem {
 
     public void periodic() {}
 
-    public void queryInitialActions() {}
+    public void queryInitialActions() {
+        ActionDeque actionDeque = ActionDeque.getInstance();
+
+        actionDeque.pushBack(
+            this.periodicThread,
+            this.loggingThread
+        );
+    }
 }

@@ -43,6 +43,7 @@ public final class Constants {
 
     // Drive controller ports
     public static final int driveControllerOnePort = 0;
+    public static final int driveControllerTwoPort = 1;
 
     // Drive controller axes
     public static final int leftStickXAxis = 0;
@@ -53,6 +54,18 @@ public final class Constants {
 
     public static final int leftTriggerAxis = 2;
     public static final int rightTriggerAxis = 3;
+
+    // Drive controller buttons
+    public static final int buttonA = 1;
+    public static final int buttonB = 2;
+    public static final int buttonX = 3;
+    public static final int buttonY = 4;
+    public static final int buttonLB = 5;
+    public static final int buttonRB = 6;
+    public static final int buttonBack = 7;
+    public static final int buttonStart = 8;
+    public static final int leftStickPressDown = 9;
+    public static final int rightStickPressDown = 10;
 
     // Drive controller offset
     public static final double maxStickOffset = 0.05;

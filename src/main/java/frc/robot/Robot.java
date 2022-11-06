@@ -4,12 +4,14 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import frc.robot.controls.Controller;
 import frc.robot.subsystems.SwerveSystem;
+import frc.robot.actions.ActionDeque;
+import frc.robot.actions.ActionThread;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -18,14 +20,22 @@ import frc.robot.subsystems.SwerveSystem;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
+  private static final String kDefaultAuto = "Default Autonomous";
+
+  private static final String kTestSwerveTrajectoryAuto = "Test Swerve Trajectory Auto";
+
   private String m_autoSelected;
+
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   public static final SwerveSystem swerveSystem = new SwerveSystem();
 
-  public static final Joystick driveControllerOne = new Joystick(Constants.driveControllerOnePort);
+  public static final Controller driveControllerOne = new Controller(Constants.driveControllerOnePort);
+  public static final Controller driveControllerTwo = new Controller(Constants.driveControllerTwoPort);
+
+  private static final RobotContainer robotContainer = new RobotContainer();
+
+  private static ActionThread autonomousAction = null;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -33,11 +43,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    m_chooser.setDefaultOption("Default Autonomous", kDefaultAuto);
+    
+    m_chooser.addOption("Autonomous #1", kTestSwerveTrajectoryAuto);
 
-    swerveSystem.queryInitialActions();
+    SmartDashboard.putData("Autonomous Options", m_chooser);
   }
 
   /**
@@ -48,7 +58,11 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    ActionDeque actionDeque = ActionDeque.getInstance();
+
+    actionDeque.run();
+  }
 
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
@@ -63,22 +77,22 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+
+    if (m_autoSelected.equals(kTestSwerveTrajectoryAuto)) {
+      autonomousAction = robotContainer.getAutonomousAction("testSwerveAutonomous");
+    }
+
+    if (autonomousAction != null) {
+      ActionDeque actionDeque = ActionDeque.getInstance();
+
+      actionDeque.pushBack(autonomousAction);
+    }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
-    }
+    
   }
 
   /** This function is called once when teleop is enabled. */
