@@ -1,9 +1,5 @@
 package frc.robot.subsystems;
 
-import com.swervedrivespecialties.swervelib.SwerveModule;
-import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
-import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper.GearRatio;
-
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -20,6 +16,10 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.kauailabs.navx.frc.AHRS;
+
+import frc.libs.sdsLib.SwerveModule;
+import frc.libs.sdsLib.Mk4SwerveModuleHelper;
+import frc.libs.sdsLib.Mk4SwerveModuleHelper.GearRatio;
 
 import frc.robot.Constants;
 import frc.robot.actions.ActionDeque;
