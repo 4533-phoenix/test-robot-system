@@ -28,11 +28,13 @@ import frc.robot.actions.SwerveActions;
 import static java.lang.Math.*;
 
 public class SwerveSystem extends Subsystem {
-    public static final double MAX_VELOCITY = 26.5988; // meters/second
-    public static final double MAX_ACCELERATION = 13.2994; // meters/second^2
+    public static final double MAX_VELOCITY = 3.6576; // meters/second
+    public static final double MAX_ACCELERATION = 1.8288; // meters/second^2
 
     public static final double MAX_ROTATIONAL_VELOCITY = 2 * PI; // radians/second
     public static final double MAX_ROTATIONAL_ACCELERATION = PI; // radians/second^2
+
+    public static final double MAX_VOLTAGE = 12.0;
 
     private SwerveModule[] swerveModules;
 
@@ -51,60 +53,62 @@ public class SwerveSystem extends Subsystem {
 
     private Pose2d swervePose;
 
+    // Holonomic PID Constants' output is velocity based on input of displacement error 
     // TODO: Calculate these
-    public static final double SWERVE_CHASSIS_X_KP = 1.0;
-    public static final double SWERVE_CHASSIS_X_KI = 0.0;
-    public static final double SWERVE_CHASSIS_X_KD = 0.0;
+    public static final double SWERVE_CHASSIS_X_VELOCITY_KP = (0.2 * MAX_VELOCITY) / MAX_VELOCITY;
+    public static final double SWERVE_CHASSIS_X_VELOCITY_KI = 0.0;
+    public static final double SWERVE_CHASSIS_X_VELOCITY_KD = SWERVE_CHASSIS_X_VELOCITY_KP * 10;
 
     // TODO: Calculate these
-    public static final double SWERVE_CHASSIS_Y_KP = 1.0;
-    public static final double SWERVE_CHASSIS_Y_KI = 0.0;
-    public static final double SWERVE_CHASSIS_Y_KD = 0.0;
+    public static final double SWERVE_CHASSIS_Y_VELOCITY_KP = (0.2 * MAX_VELOCITY) / MAX_VELOCITY;
+    public static final double SWERVE_CHASSIS_Y_VELOCITY_KI = 0.0;
+    public static final double SWERVE_CHASSIS_Y_VELOCITY_KD = SWERVE_CHASSIS_Y_VELOCITY_KP * 10;
 
     // TODO: Calculate these
-    public static final double SWERVE_CHASSIS_THETA_KP = 1.0;
-    public static final double SWERVE_CHASSIS_THETA_KI = 0.0;
-    public static final double SWERVE_CHASSIS_THETA_KD = 0.0;
+    public static final double SWERVE_CHASSIS_OMEGA_KP = (0.2 * MAX_ROTATIONAL_VELOCITY) / MAX_ROTATIONAL_VELOCITY;
+    public static final double SWERVE_CHASSIS_OMEGA_KI = 0.0;
+    public static final double SWERVE_CHASSIS_OMEGA_KD = SWERVE_CHASSIS_OMEGA_KP * 10;
 
     private HolonomicDriveController swerveChassisController = new HolonomicDriveController(
         new PIDController(
-            SWERVE_CHASSIS_X_KP, 
-            SWERVE_CHASSIS_X_KI, 
-            SWERVE_CHASSIS_X_KD
+            SWERVE_CHASSIS_X_VELOCITY_KP, 
+            SWERVE_CHASSIS_X_VELOCITY_KI, 
+            SWERVE_CHASSIS_X_VELOCITY_KD
         ),
         new PIDController(
-            SWERVE_CHASSIS_Y_KP, 
-            SWERVE_CHASSIS_Y_KI, 
-            SWERVE_CHASSIS_Y_KD
+            SWERVE_CHASSIS_Y_VELOCITY_KP, 
+            SWERVE_CHASSIS_Y_VELOCITY_KI, 
+            SWERVE_CHASSIS_Y_VELOCITY_KD
         ),
         new ProfiledPIDController(
-            SWERVE_CHASSIS_THETA_KP, 
-            SWERVE_CHASSIS_THETA_KI, 
-            SWERVE_CHASSIS_THETA_KD,
+            SWERVE_CHASSIS_OMEGA_KP, 
+            SWERVE_CHASSIS_OMEGA_KI, 
+            SWERVE_CHASSIS_OMEGA_KD,
             new TrapezoidProfile.Constraints(MAX_ROTATIONAL_VELOCITY, MAX_ROTATIONAL_ACCELERATION)
         )
     );
 
     // TODO: Calculate these using SysID
-    public static final double SWERVE_DRIVE_MOTOR_FEEDFORWARD_KS = 1.0;
-    public static final double SWERVE_DRIVE_MOTOR_FEEDFORWARD_KV = 1.0;
-    public static final double SWERVE_DRIVE_MOTOR_FEEDFORWARD_KA = 1.0;
+    public static final double SWERVE_DRIVE_MOTOR_VELOCITY_FEEDFORWARD_KS = 1.0;
+    public static final double SWERVE_DRIVE_MOTOR_VELOCITY_FEEDFORWARD_KV = 1.0;
+    public static final double SWERVE_DRIVE_MOTOR_VELOCITY_FEEDFORWARD_KA = 1.0;
 
+    // Swerve Drive Motor PID Constants' output is voltage based on input of velocity error
     // TODO: Calculate these
-    public static final double SWERVE_DRIVE_MOTOR_KP = 1.0;
-    public static final double SWERVE_DRIVE_MOTOR_KI = 0.0;
-    public static final double SWERVE_DRIVE_MOTOR_KD = 0.0;
+    public static final double SWERVE_DRIVE_MOTOR_VELOCITY_KP = (0.2 * MAX_VOLTAGE) / MAX_VELOCITY;
+    public static final double SWERVE_DRIVE_MOTOR_VELOCITY_KI = 0.0;
+    public static final double SWERVE_DRIVE_MOTOR_VELOCITY_KD = SWERVE_DRIVE_MOTOR_VELOCITY_KP * 10;
 
     private SimpleMotorFeedforward swerveModuleDriveMotorFeedForward = new SimpleMotorFeedforward(
-        SWERVE_DRIVE_MOTOR_FEEDFORWARD_KS,
-        SWERVE_DRIVE_MOTOR_FEEDFORWARD_KV,
-        SWERVE_DRIVE_MOTOR_FEEDFORWARD_KA
+        SWERVE_DRIVE_MOTOR_VELOCITY_FEEDFORWARD_KS,
+        SWERVE_DRIVE_MOTOR_VELOCITY_FEEDFORWARD_KV,
+        SWERVE_DRIVE_MOTOR_VELOCITY_FEEDFORWARD_KA
     );
 
     private ProfiledPIDController swerveModuleDriveMotorController = new ProfiledPIDController(
-        SWERVE_DRIVE_MOTOR_KP, 
-        SWERVE_DRIVE_MOTOR_KI, 
-        SWERVE_DRIVE_MOTOR_KD, 
+        SWERVE_DRIVE_MOTOR_VELOCITY_KP, 
+        SWERVE_DRIVE_MOTOR_VELOCITY_KI, 
+        SWERVE_DRIVE_MOTOR_VELOCITY_KD, 
         new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION)
     );
 
@@ -239,7 +243,6 @@ public class SwerveSystem extends Subsystem {
         SmartDashboard.putNumber("Swerve Rotational Velocity", -chassisSpeeds.omegaRadiansPerSecond);
     }
 
-    // TODO: Create an action thread that runs this
     @Override
     public void periodic() {
         fieldRelativeAngleOffset = toRadians(-navX.getYaw());
