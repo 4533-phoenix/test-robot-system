@@ -1,22 +1,16 @@
 package frc.robot.controls;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 import edu.wpi.first.wpilibj.Joystick;
-import frc.robot.actions.ActionThread;
+import frc.robot.actions.Action;
 import frc.robot.actions.Listener;
 
-public class Controller extends Joystick {
+public final class Controller extends Joystick {
     private final ControllerButton[] buttons = new ControllerButton[10];
 
-    private final ReentrantLock controllerLock = new ReentrantLock();
-
-    private final ActionThread updateButtonsThread = new ActionThread(
-        () -> { this.updateButtons(); }, 
-        true, 
+    private final Action updateButtonsAction = new Action(
+        () -> { this.updateButtons(); },
         false, 
-        false, 
-        this.controllerLock
+        false
     );
 
     public Controller(int controllerPort) {
@@ -51,7 +45,7 @@ public class Controller extends Joystick {
         }
     }
 
-    public ActionThread getUpdateButtonsThread() {
-        return this.updateButtonsThread;
+    public Action getUpdateButtonsAction() {
+        return this.updateButtonsAction;
     }
 }

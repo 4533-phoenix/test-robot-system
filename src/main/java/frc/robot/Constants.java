@@ -3,7 +3,7 @@ package frc.robot;
 public final class Constants {
     // TODO: Get the correct motor ports
     // Swerve module motor ports
-    public static final int frontLeftDriveMotorPort = 0;
+    public static final int frontLeftDriveMotorPort = 8;
     public static final int frontLeftSteerMotorPort = 1;
     
     public static final int frontRightDriveMotorPort = 2;
@@ -17,10 +17,10 @@ public final class Constants {
 
     // TODO: Get the correct CANCoder ports
     // Swerve module CANCoder ports
-    public static final int frontLeftSteerEncoderPort = 8;
-    public static final int frontRightSteerEncoderPort = 9;
-    public static final int backLeftSteerEncoderPort = 10;
-    public static final int backRightSteerEncoderPort = 11;
+    public static final int frontLeftSteerEncoderPort = 0;
+    public static final int frontRightSteerEncoderPort = 1;
+    public static final int backLeftSteerEncoderPort = 2;
+    public static final int backRightSteerEncoderPort = 3;
 
     // Swerve module indices
     public static final int frontLeftSwerveModuleIndex = 0;
@@ -30,16 +30,19 @@ public final class Constants {
 
     // TODO: Calculate these
     // Swerve module steer motor offsets
-    public static final double frontLeftSteerMotorOffset = 0.0;
-    public static final double frontRightSteerMotorOffset = 0.0;
-    public static final double backLeftSteerMotorOffset = 0.0;
-    public static final double backRightSteerMotorOffset = 0.0;
+    public static final double frontLeftSteerMotorOffset = 2.3609;
+    public static final double frontRightSteerMotorOffset = 4.4809;
+    public static final double backLeftSteerMotorOffset = 3.0474;
+    public static final double backRightSteerMotorOffset = 1.7207;
 
     // Swerve module wheel diameter
     public static final double swerveModuleWheelDiameter = 0.1016; // meters
 
     // Swerve module distance from center of robot (in both x and y direction)
     public static final double swerveModuleDistanceFromCenter = 0.28575; // meters
+
+    // Difference in time between each action deque run
+    public static final double actionDequeDT = 50.0; // ms
 
     // Drive controller ports
     public static final int driveControllerOnePort = 0;

@@ -1,13 +1,13 @@
 package frc.robot;
 
-import frc.robot.actions.ActionThread;
-import frc.robot.actions.SwerveActions;
+import frc.robot.actions.Action;
+import frc.robot.actions.AutonomousActions;
 
 import java.util.Map;
 
 public final class RobotContainer {
-    private Map<String, ActionThread> autonomousActionMap = Map.ofEntries(
-        Map.entry("testSwerveAutonomous", SwerveActions.testSwerveAutonomous())
+    private Map<String, Action> autonomousActionMap = Map.ofEntries(
+        Map.entry("testSwerveAutonomous", AutonomousActions.testSwerveAutonomous())
     );
 
     private void queryInitialActions() {
@@ -22,7 +22,7 @@ public final class RobotContainer {
         this.queryEventActions();
     }
 
-    public ActionThread getAutonomousAction(String autonomousActionKey) {
+    public Action getAutonomousAction(String autonomousActionKey) {
         return this.autonomousActionMap.get(autonomousActionKey);
     }
 }

@@ -1,40 +1,27 @@
 package frc.robot.subsystems;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 import frc.robot.actions.ActionDeque;
-import frc.robot.actions.ActionThread;
-import frc.robot.logging.Logger;
+import frc.robot.actions.Action;
 
 public class Subsystem {
-    private final ReentrantLock threadLock = new ReentrantLock(true);
-
-    private final ActionThread loggingThread = new ActionThread(
-        () -> { this.log(); }, 
-        true, 
-        false, 
-        false, 
-        Logger.getLoggingLock()
-    );
-
-    private final ActionThread periodicThread = new ActionThread(
+    private final Action periodicAction = new Action(
         () -> { this.periodic(); }, 
-        true, 
         false, 
-        false, 
-        this.threadLock
+        false
     );
 
-    public final ReentrantLock getThreadLock() {
-        return this.threadLock;
+    private final Action loggingAction = new Action(
+        () -> { this.log(); }, 
+        false, 
+        false
+    );
+
+    protected final Action getPeriodicAction() {
+        return this.periodicAction;
     }
 
-    protected final ActionThread getLoggingThread() {
-        return this.loggingThread;
-    }
-
-    protected final ActionThread getPeriodicThread() {
-        return this.periodicThread;
+    protected final Action getLoggingAction() {
+        return this.loggingAction;
     }
 
     public void log() {}
@@ -42,11 +29,9 @@ public class Subsystem {
     public void periodic() {}
 
     public void queryInitialActions() {
-        ActionDeque actionDeque = ActionDeque.getInstance();
-
-        actionDeque.pushBack(
-            this.periodicThread,
-            this.loggingThread
+        ActionDeque.getInstance().pushBack(
+            this.periodicAction,
+            this.loggingAction
         );
     }
 }

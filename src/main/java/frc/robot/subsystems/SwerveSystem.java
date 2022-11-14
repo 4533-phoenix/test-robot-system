@@ -27,16 +27,16 @@ import frc.robot.actions.SwerveActions;
 
 import static java.lang.Math.*;
 
-public class SwerveSystem extends Subsystem {
-    public static final double MAX_VELOCITY = 3.6576; // meters/second
-    public static final double MAX_ACCELERATION = 1.8288; // meters/second^2
+public final class SwerveSystem extends Subsystem {
+    public static final double MAX_VELOCITY = 0.5; // meters/second
+    public static final double MAX_ACCELERATION = MAX_VELOCITY / 2; // meters/second^2
 
     public static final double MAX_ROTATIONAL_VELOCITY = 2 * PI; // radians/second
     public static final double MAX_ROTATIONAL_ACCELERATION = PI; // radians/second^2
 
     public static final double MAX_VOLTAGE = 12.0;
 
-    private SwerveModule[] swerveModules;
+    private SwerveModule[] swerveModules = new SwerveModule[4];
 
     private AHRS navX = new AHRS(SPI.Port.kMXP);
 
@@ -263,15 +263,15 @@ public class SwerveSystem extends Subsystem {
             swerveModuleStates[2],
             swerveModuleStates[3]
         );
+
+        System.out.println("Front Left Offset: " + swerveModules[0].getSteerAngle());
     }
 
     @Override
     public void queryInitialActions() {
         super.queryInitialActions();
 
-        ActionDeque actionDeque = ActionDeque.getInstance();
-
-        actionDeque.pushBack(
+        ActionDeque.getInstance().pushBack(
             SwerveActions.defaultSwerveDrive()
         );
     }

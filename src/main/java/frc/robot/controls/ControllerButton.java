@@ -4,7 +4,7 @@ import frc.robot.actions.Listener;
 
 import java.util.ArrayList;
 
-public class ControllerButton {
+public final class ControllerButton {
     private ArrayList<Listener> eventThreads = new ArrayList<Listener>();
 
     public void addEventThread(Listener eventThread) {

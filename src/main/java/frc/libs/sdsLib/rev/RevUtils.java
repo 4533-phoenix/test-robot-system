@@ -7,7 +7,7 @@ public final class RevUtils {
 
     public static void checkNeoError(REVLibError error, String message) {
         if (error != REVLibError.kOk) {
-            throw new RuntimeException(String.format("%s: %s", message, error.toString()));
+            // throw new RuntimeException(String.format("%s: %s", message, error.toString()));
         }
     }
 }

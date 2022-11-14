@@ -1,15 +1,13 @@
 package frc.robot.actions;
 
 import java.util.ArrayList;
-import java.util.concurrent.locks.ReentrantLock;
-
-public class ActionDeque {
+public final class ActionDeque {
     private static ActionDeque deque;
 
-    private ArrayList<ActionThread> actions;
+    private ArrayList<Action> actions;
 
     private ActionDeque() {
-        this.actions = new ArrayList<ActionThread>();
+        this.actions = new ArrayList<Action>();
     }
 
     public static ActionDeque getInstance() {
@@ -22,58 +20,48 @@ public class ActionDeque {
 
     public void run() {
         for (int i = 0; i < this.actions.size(); i++) {
-            ActionThread t = (ActionThread) this.actions.get(i);
-            ReentrantLock lock = t.getLock();
+            Action action = (Action) this.actions.get(i);
 
-            if (!t.isAlive()) {
-                t.start();
+            action.run();
 
-                while (!lock.isLocked()) {}
-            }
+            if (action.willCancel()) {
+                this.actions.remove(i);
 
-            if (t.willCancel()) {
-                if (!t.willLoop()) {
-                    this.actions.remove(i);
-
-                    i--;
-                }
-            }
-
-            for (int j = 0; j < this.actions.size(); j++) {
-                ActionThread ct = (ActionThread) this.actions.get(j);
-
-                if (!ct.equals(t) && ct.getLock().equals(lock) && ct.willLoop()) {
-                    ct.end();
-
-                    if (ct.willCancel()) {
-                        this.actions.remove(j);
-
-                        j--;
-                        i--;
-                    }
-                }
+                i--;
             }
         }
     }
 
-    public void pushFront(ActionThread... actions) {
-        for (ActionThread action : actions) {
+    public void pushFront(Action... actions) {
+        for (Action action : actions) {
             this.actions.add(0, action);
         }
     }
 
-    public void pushBack(ActionThread... actions) {
-        for (ActionThread action : actions) {
+    public void pushBack(Action... actions) {
+        for (Action action : actions) {
             this.actions.add(action);
         }
     }
 
-    public ActionThread popFront() {
+    public Action popFront() {
         return this.actions.remove(0);
     } 
 
-    public ActionThread popBack() {
+    public Action popBack() {
         return this.actions.remove(this.actions.size() - 1);
+    }
+
+    public void cancel(Action action) {
+        for (int i = 0; i < this.actions.size(); i++) {
+            Action a = this.actions.get(i);
+
+            if (a.equals(action)) {
+                this.actions.remove(i);
+
+                return;
+            }
+        }
     }
 
     public int getSize() {

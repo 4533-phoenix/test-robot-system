@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.controls.Controller;
 import frc.robot.subsystems.SwerveSystem;
 import frc.robot.actions.ActionDeque;
-import frc.robot.actions.ActionThread;
+import frc.robot.actions.Action;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -19,7 +19,7 @@ import frc.robot.actions.ActionThread;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot extends TimedRobot {
+public final class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default Autonomous";
 
   private static final String kTestSwerveTrajectoryAuto = "Test Swerve Trajectory Auto";
@@ -35,7 +35,7 @@ public class Robot extends TimedRobot {
 
   private static final RobotContainer robotContainer = new RobotContainer();
 
-  private static ActionThread autonomousAction = null;
+  private static Action autonomousAction = null;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -59,9 +59,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    ActionDeque actionDeque = ActionDeque.getInstance();
-
-    actionDeque.run();
+    ActionDeque.getInstance().run();
   }
 
   /**
@@ -83,9 +81,7 @@ public class Robot extends TimedRobot {
     }
 
     if (autonomousAction != null) {
-      ActionDeque actionDeque = ActionDeque.getInstance();
-
-      actionDeque.pushBack(autonomousAction);
+      ActionDeque.getInstance().pushBack(autonomousAction);
     }
   }
 
@@ -97,7 +93,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    ActionDeque.getInstance().cancel(autonomousAction);
+  }
 
   /** This function is called periodically during operator control. */
   @Override
