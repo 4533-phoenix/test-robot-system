@@ -17,9 +17,6 @@ import frc.robot.subsystems.SwerveSystem;
 import frc.robot.Robot;
 
 public final class AutonomousActions {
-    private static Trajectory autonomousTrajectory;
-    private static Timer autonomousTimer = new Timer();
-
     public static Action testSwerveAutonomous() {
         TrajectoryConfig config = new TrajectoryConfig(
             SwerveSystem.MAX_VELOCITY, 
@@ -48,45 +45,42 @@ public final class AutonomousActions {
 
         Pose2d endPose = new Pose2d(startPose.getX() + 3, startPose.getY(), startPose.getRotation());
 
-        autonomousTrajectory = TrajectoryGenerator.generateTrajectory(
+        Trajectory swerveTrajectory = TrajectoryGenerator.generateTrajectory(
             Robot.swerveSystem.getSwervePose(), 
             trajectoryPoints, 
             endPose, 
             config
         );
 
-        autonomousTimer.stop();
-        autonomousTimer.reset();
-
         Runnable trajectoryRunnable = new Runnable() {
             @Override
             public void run() {
-                autonomousTimer.start();
+                double time = swerveTrajectory.getTotalTimeSeconds();
 
-                double currentTime = autonomousTimer.get();
+                Timer timer = new Timer();
+                timer.reset();
+                timer.start();
 
-                if (currentTime > autonomousTrajectory.getTotalTimeSeconds()) {
-                    Robot.swerveSystem.drive(new SwerveModuleState[]{}, true);
+                while (timer.get() <= time) {
+                    HolonomicDriveController swerveChassisController = Robot.swerveSystem.getSwerveChassisController();
 
-                    return;
+                    Trajectory.State trajectoryState = swerveTrajectory.sample(timer.get());
+
+                    ChassisSpeeds chassisSpeeds = swerveChassisController.calculate(
+                        Robot.swerveSystem.getSwervePose(), 
+                        trajectoryState,
+                        trajectoryState.poseMeters.getRotation()
+                    );
+
+                    SwerveModuleState[] swerveModuleStates = Robot.swerveSystem.getSwerveKinematics().toSwerveModuleStates(chassisSpeeds);
+                    
+                    Robot.swerveSystem.drive(swerveModuleStates, false);
                 }
 
-                HolonomicDriveController swerveChassisController = Robot.swerveSystem.getSwerveChassisController();
-
-                Trajectory.State trajectoryState = autonomousTrajectory.sample(currentTime);
-
-                ChassisSpeeds chassisSpeeds = swerveChassisController.calculate(
-                    Robot.swerveSystem.getSwervePose(), 
-                    trajectoryState,
-                    trajectoryState.poseMeters.getRotation()
-                );
-
-                SwerveModuleState[] swerveModuleStates = Robot.swerveSystem.getSwerveKinematics().toSwerveModuleStates(chassisSpeeds);
-                
-                Robot.swerveSystem.drive(swerveModuleStates, false);
+                Robot.swerveSystem.drive(new SwerveModuleState[]{}, true);                
             }
         };
 
-        return new Action(trajectoryRunnable, false, false);
+        return new Action(trajectoryRunnable, true, false, Robot.swerveSystem.getSubsystemThreadLock());
     }
 }

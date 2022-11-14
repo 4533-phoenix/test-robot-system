@@ -39,6 +39,6 @@ public final class SwerveActions {
             }
         };
 
-        return new Action(defaultSwerveDriveRunnable, false, false);
+        return new Action(defaultSwerveDriveRunnable, false, false, null);
     }
 }

@@ -93,9 +93,7 @@ public final class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {
-    ActionDeque.getInstance().cancel(autonomousAction);
-  }
+  public void teleopInit() {}
 
   /** This function is called periodically during operator control. */
   @Override

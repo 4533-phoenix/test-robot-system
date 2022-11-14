@@ -10,7 +10,8 @@ public final class Controller extends Joystick {
     private final Action updateButtonsAction = new Action(
         () -> { this.updateButtons(); },
         false, 
-        false
+        false,
+        null
     );
 
     public Controller(int controllerPort) {

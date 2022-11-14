@@ -22,7 +22,14 @@ public final class ActionDeque {
         for (int i = 0; i < this.actions.size(); i++) {
             Action action = (Action) this.actions.get(i);
 
-            action.run();
+            if (action.willThreadRun()) {
+                action.start();
+
+                while (!action.getThreadLock().isLocked()) {}
+            }
+            else {
+                action.run();
+            }
 
             if (action.willCancel()) {
                 this.actions.remove(i);
@@ -50,21 +57,5 @@ public final class ActionDeque {
 
     public Action popBack() {
         return this.actions.remove(this.actions.size() - 1);
-    }
-
-    public void cancel(Action action) {
-        for (int i = 0; i < this.actions.size(); i++) {
-            Action a = this.actions.get(i);
-
-            if (a.equals(action)) {
-                this.actions.remove(i);
-
-                return;
-            }
-        }
-    }
-
-    public int getSize() {
-        return this.actions.size();
     }
 }
